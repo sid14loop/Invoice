@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GST Invoice Form</title>
+  <style>
+   body {
+  font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 30px auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2c3e50;
+  font-weight: 600;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 15px;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 100%;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+  color: #34495e;
+}
+
+.form-section {
+  border: 1px solid #e0e6ed;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  grid-column: span 2;
+  background-color: #fcfcfd;
+  transition: box-shadow 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.form-section h3 {
+  margin-top: 0;
+  color: #3498db;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #eaeef3;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+input, select {
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #dfe6e9;
+  border-radius: 6px;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background-color: #ffffff;
+}
+
+input:focus, select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  outline: none;
+}
+
+input:read-only {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  color: #495057;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.half-width {
+  width: 100%;
+}
+
+.button-container {
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 12px 24px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+}
+
+.btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.supply-type {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.interstate {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+  border-left: 4px solid #1976d2;
+}
+
+.intrastate {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  border-left: 4px solid #43a047;
+}
+
+#supplyTypeDisplay {
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+  form {
+    grid-template-columns: 1fr; /* Stack form fields on small screens */
+  }
+
+  .half-width {
+    width: 100%;
+  }
+  
+  .container {
+    width: 95%;
+    padding: 20px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GST Invoice Form</h1>
+    <form id="invoiceForm">
+      
+      <!-- Invoice Details Section -->
+      <div class="form-section">
+        <h3>Invoice Details</h3>
+        
+        <!-- Invoice Number -->
+        <label for="invoiceNumber">Invoice Number:</label>
+        <input type="text" id="invoiceNumber" name="invoiceNumber" class="half-width">
+
+        <!-- Invoice Date -->
+        <label for="invoiceDate">Invoice Date:</label>
+        <input type="date" id="invoiceDate" name="invoiceDate" class="half-width">
+
+        <!-- Taxable Value -->
+        <label for="taxableValue">Taxable Value (₹):</label>
+        <input type="number" id="taxableValue" name="taxableValue" oninput="calculateGST()" class="half-width">
+
+        <!-- GST Rate -->
+        <label for="gstRate">GST Rate:</label>
+        <select id="gstRate" name="gstRate" onchange="calculateGST()" class="half-width">
+          <option value="">Select GST Rate</option>
+          <option value="1">1%</option>
+          <option value="3">3%</option>
+          <option value="5">5%</option>
+          <option value="8">8%</option>
+          <option value="12">12%</option>
+          <option value="18">18%</option>
+          <option value="24">24%</option>
+          <option value="28">28%</option>
+        </select>
+
+        <!-- GST HSN/SAC Code -->
+        <label for="hsnCode">HSN/SAC Code:</label>
+        <input type="text" id="hsnCode" name="hsnCode" class="half-width">
+
+        <!-- Service Category -->
+        <label for="serviceCategory">Service Category:</label>
+        <select id="serviceCategory" name="serviceCategory" class="half-width">
+          <option value="">Select Service Category</option>
+          <option value="1">Goods</option>
+          <option value="2">Services</option>
+        </select>
+      </div>
+
+      <!-- Supplier Details Section -->
+      <div class="form-section">
+        <h3>Supplier Details</h3>
+        
+        <!-- Supplier Name -->
+        <label for="supplierName">Supplier Name:</label>
+        <input type="text" id="supplierName" name="supplierName" class="half-width">
+
+        <!-- Supplier GSTIN -->
+        <label for="supplierGstin">Supplier GSTIN:</label>
+        <input type="text" id="supplierGstin" name="supplierGstin" oninput="extractSupplierDetails()" class="half-width">
+
+        <!-- Supplier State Code (Auto-filled) -->
+        <label for="supplierStateCode">Supplier State Code:</label>
+        <input type="text" id="supplierStateCode" name="supplierStateCode" readonly class="half-width">
+
+        <!-- Supplier PAN (Auto-filled from GSTIN) -->
+        <label for="supplierPan">Supplier PAN:</label>
+        <input type="text" id="supplierPan" name="supplierPan" readonly class="half-width">
+      </div>
+
+      <!-- Receiver Details Section -->
+      <div class="form-section">
+        <h3>Receiver Details</h3>
+        
+        <!-- Receiver Name -->
+        <label for="receiverName">Receiver Name:</label>
+        <input type="text" id="receiverName" name="receiverName" class="half-width">
+
+        <!-- Receiver GSTIN -->
+        <label for="receiverGstin">Receiver GSTIN:</label>
+        <input type="text" id="receiverGstin" name="receiverGstin" oninput="extractReceiverDetails()" class="half-width">
+
+        <!-- Receiver State Code (Auto-filled) -->
+        <label for="receiverStateCode">Receiver State Code:</label>
+        <input type="text" id="receiverStateCode" name="receiverStateCode" readonly class="half-width">
+
+        <!-- Receiver PAN (Auto-filled from GSTIN) -->
+        <label for="receiverPan">Receiver PAN:</label>
+        <input type="text" id="receiverPan" name="receiverPan" readonly class="half-width">
+      </div>
+
+      <!-- Supply Type Information (Auto-determined) -->
+      <div class="form-section">
+        <h3>Supply Information</h3>
+        <div id="supplyTypeDisplay">Supply Type: <span id="supplyTypeText">Not determined yet</span></div>
+        
+        <!-- GST Calculation Results -->
+        <div style="margin-top: 15px;">
+          <!-- IGST Amount -->
+          <label for="igstAmount">IGST Amount (₹):</label>
+          <input type="number" id="igstAmount" name="igstAmount" readonly class="half-width">
+
+          <!-- CGST Amount -->
+          <label for="cgstAmount">CGST Amount (₹):</label>
+          <input type="number" id="cgstAmount" name="cgstAmount" readonly class="half-width">
+
+          <!-- SGST Amount -->
+          <label for="sgstAmount">SGST Amount (₹):</label>
+          <input type="number" id="sgstAmount" name="sgstAmount" readonly class="half-width">
+
+          <!-- Total GST Amount -->
+          <label for="totalGstAmount">Total GST Amount (₹):</label>
+          <input type="number" id="totalGstAmount" name="totalGstAmount" readonly class="half-width">
+
+          <!-- Invoice Total -->
+          <label for="invoiceTotal">Invoice Total (₹):</label>
+          <input type="number" id="invoiceTotal" name="invoiceTotal" readonly class="half-width">
+        </div>
+      </div>
+
+      <!-- GST RCM Applicability -->
+      <div class="form-section">
+        <h3>Reverse Charge Mechanism</h3>
+        <label for="rcmApplicability">GST RCM Applicability:</label>
+        <select id="rcmApplicability" name="rcmApplicability" onchange="toggleRCMFields()" class="half-width">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+
+        <!-- RCM Fields (Initially Hidden) -->
+        <div id="rcmFields" style="display:none; margin-top: 15px;">
+          <label for="rcmIgstAmount">RCM IGST Amount (₹):</label>
+          <input type="number" id="rcmIgstAmount" name="rcmIgstAmount" readonly class="half-width">
+
+          <label for="rcmCgstAmount">RCM CGST Amount (₹):</label>
+          <input type="number" id="rcmCgstAmount" name="rcmCgstAmount" readonly class="half-width">
+
+          <label for="rcmSgstAmount">RCM SGST Amount (₹):</label>
+          <input type="number" id="rcmSgstAmount" name="rcmSgstAmount" readonly class="half-width">
+        </div>
+      </div>
+
+      <!-- TDS Section -->
+      <div class="form-section">
+        <h3>TDS Details</h3>
+        <label for="tdsSection">TDS Section:</label>
+        <select id="tdsSection" name="tdsSection" class="half-width">
+          <option value="">Select TDS Section</option>
+          <option value="194J">Section 194J</option>
+          <option value="194C">Section 194C</option>
+        </select>
+
+        <!-- TDS Rate -->
+        <label for="tdsRate">TDS Rate:</label>
+        <select id="tdsRate" name="tdsRate" onchange="calculateTDS()" class="half-width">
+          <option value="">Select TDS Rate</option>
+          <option value="1">1%</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+          <option value="15">15%</option>
+          <option value="20">20%</option>
+        </select>
+
+        <!-- TDS Deduction -->
+        <label for="tdsDeduction">TDS Deduction (₹):</label>
+        <input type="number" id="tdsDeduction" name="tdsDeduction" readonly class="half-width">
+
+        <!-- Net Payable Amount -->
+        <label for="netPayable">Net Payable Amount (₹):</label>
+        <input type="number" id="netPayable" name="netPayable" readonly class="half-width">
+      </div>
+
+      <div class="button-container">
+        <button type="button" class="btn" onclick="submitForm()">Generate Invoice</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // State Code Mapping as per GSTIN Codes
+    const stateMapping = {
+      "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
+      "05": "Uttarakhand", "06": "Haryana", "07": "Delhi", "08": "Rajasthan",
+      "09": "Uttar Pradesh", "10": "Bihar", "11": "Sikkim", "12": "Arunachal Pradesh",
+      "13": "Nagaland", "14": "Manipur", "15": "Mizoram", "16": "Tripura",
+      "17": "Meghalaya", "18": "Assam", "19": "West Bengal", "20": "Jharkhand",
+      "21": "Odisha", "22": "Chhattisgarh", "23": "Madhya Pradesh", "24": "Gujarat",
+      "25": "Daman & Diu", "26": "Dadra & Nagar Haveli", "27": "Maharashtra",
+      "28": "Andhra Pradesh (Old)", "29": "Karnataka", "30": "Goa",
+      "31": "Lakshadweep", "32": "Kerala", "33": "Tamil Nadu", "34": "Puducherry",
+      "35": "Andaman & Nicobar Islands", "36": "Telangana", "37": "Andhra Pradesh (New)"
+    };
+
+    // Extract Supplier Details from GSTIN
+    function extractSupplierDetails() {
+      const gstin = document.getElementById('supplierGstin').value.trim();
+      
+      if (gstin.length === 15) {
+        // Extract PAN from GSTIN (Characters 3-12)
+        const pan = gstin.substring(2, 12);
+        document.getElementById('supplierPan').value = pan;
+
+        // Extract State Code (First 2 Digits of GSTIN)
+        const stateCode = gstin.substring(0, 2);
+        
+        if (stateMapping[stateCode]) {
+          document.getElementById('supplierStateCode').value = `${stateCode} (${stateMapping[stateCode]})`;
+        } else {
+          document.getElementById('supplierStateCode').value = "Invalid State Code";
+        }
+
+        // Recalculate GST after supplier GSTIN changes
+        determineSupplyType();
+        calculateGST();
+      } else {
+        document.getElementById('supplierPan').value = '';
+        document.getElementById('supplierStateCode').value = '';
+      }
+    }
+
+    // Extract Receiver Details from GSTIN
+    function extractReceiverDetails() {
+      const gstin = document.getElementById('receiverGstin').value.trim();
+      
+      if (gstin.length === 15) {
+        // Extract PAN from GSTIN (Characters 3-12)
+        const pan = gstin.substring(2, 12);
+        document.getElementById('receiverPan').value = pan;
+
+        // Extract State Code (First 2 Digits of GSTIN)
+        const stateCode = gstin.substring(0, 2);
+        
+        if (stateMapping[stateCode]) {
+          document.getElementById('receiverStateCode').value = `${stateCode} (${stateMapping[stateCode]})`;
+        } else {
+          document.getElementById('receiverStateCode').value = "Invalid State Code";
+        }
+
+        // Recalculate GST after receiver GSTIN changes
+        determineSupplyType();
+        calculateGST();
+      } else {
+        document.getElementById('receiverPan').value = '';
+        document.getElementById('receiverStateCode').value = '';
+      }
+    }
+
+    // Determine Supply Type (Interstate or Intrastate) based on GSTINs
+    function determineSupplyType() {
+      const supplierGstin = document.getElementById('supplierGstin').value.trim();
+      const receiverGstin = document.getElementById('receiverGstin').value.trim();
+      
+      if (supplierGstin.length === 15 && receiverGstin.length === 15) {
+        const supplierStateCode = supplierGstin.substring(0, 2);
+        const receiverStateCode = receiverGstin.substring(0, 2);
+        
+        const supplyTypeText = document.getElementById('supplyTypeText');
+        
+        if (supplierStateCode === receiverStateCode) {
+          // Intrastate supply (same state)
+          supplyTypeText.textContent = "Intrastate Supply";
+          supplyTypeText.className = "supply-type intrastate";
+          return "intrastate";
+        } else {
+          // Interstate supply (different states)
+          supplyTypeText.textContent = "Interstate Supply";
+          supplyTypeText.className = "supply-type interstate";
+          return "interstate";
+        }
+      } else {
+        document.getElementById('supplyTypeText').textContent = "Not determined yet";
+        document.getElementById('supplyTypeText').className = "";
+        return null;
+      }
+    }
+
+    // Calculate GST based on Taxable Value, GST Rate, and Supply Type
+    function calculateGST() {
+      const taxableValue = parseFloat(document.getElementById('taxableValue').value);
+      const gstRate = parseFloat(document.getElementById('gstRate').value);
+      const supplyType = determineSupplyType();
+
+      if (!isNaN(taxableValue) && !isNaN(gstRate) && supplyType) {
+        const totalGST = (taxableValue * gstRate) / 100;
+        document.getElementById('totalGstAmount').value = totalGST.toFixed(2);
+        
+        if (supplyType === "interstate") {
+          // Interstate: Apply full GST as IGST
+          document.getElementById('igstAmount').value = totalGST.toFixed(2);
+          document.getElementById('cgstAmount').value = "0.00";
+          document.getElementById('sgstAmount').value = "0.00";
+        } else if (supplyType === "intrastate") {
+          // Intrastate: Split GST equally between CGST and SGST
+          const halfGST = totalGST / 2;
+          document.getElementById('igstAmount').value = "0.00";
+          document.getElementById('cgstAmount').value = halfGST.toFixed(2);
+          document.getElementById('sgstAmount').value = halfGST.toFixed(2);
+        }
+        
+        // Calculate Invoice Total
+        const invoiceTotal = taxableValue + totalGST;
+        document.getElementById('invoiceTotal').value = invoiceTotal.toFixed(2);
+        
+        // If RCM is applicable, calculate RCM values
+        if (document.getElementById('rcmApplicability').value === 'yes') {
+          calculateRCM();
+        }
+        
+        // Calculate TDS if rate is selected
+        if (document.getElementById('tdsRate').value) {
+          calculateTDS();
+        }
+      } else {
+        // Reset all calculation fields if inputs are incomplete
+        document.getElementById('igstAmount').value = "";
+        document.getElementById('cgstAmount').value = "";
+        document.getElementById('sgstAmount').value = "";
+        document.getElementById('totalGstAmount').value = "";
+        document.getElementById('invoiceTotal').value = "";
+      }
+    }
+
+    // Toggle RCM fields visibility based on selection
+    function toggleRCMFields() {
+      const rcmApplicability = document.getElementById('rcmApplicability').value;
+      const rcmFields = document.getElementById('rcmFields');
+      
+      if (rcmApplicability === 'yes') {
+        rcmFields.style.display = 'block';
+        calculateRCM();
+      } else {
+        rcmFields.style.display = 'none';
+        resetRCMFields();
+      }
+    }
+
+    // Calculate RCM (Reverse Charge Mechanism) amounts
+    function calculateRCM() {
+      const igstAmount = parseFloat(document.getElementById('igstAmount').value) || 0;
+      const cgstAmount = parseFloat(document.getElementById('cgstAmount').value) || 0;
+      const sgstAmount = parseFloat(document.getElementById('sgstAmount').value) || 0;
+      
+      // Copy the GST amounts to RCM fields
+      document.getElementById('rcmIgstAmount').value = igstAmount.toFixed(2);
+      document.getElementById('rcmCgstAmount').value = cgstAmount.toFixed(2);
+      document.getElementById('rcmSgstAmount').value = sgstAmount.toFixed(2);
+    }
+
+    // Reset RCM fields when RCM is not applicable
+    function resetRCMFields() {
+      document.getElementById('rcmIgstAmount').value = '';
+      document.getElementById('rcmCgstAmount').value = '';
+      document.getElementById('rcmSgstAmount').value = '';
+    }
+
+    // Calculate TDS and net payable amount
+    function calculateTDS() {
+      const taxableValue = parseFloat(document.getElementById('taxableValue').value);
+      const tdsRate = parseFloat(document.getElementById('tdsRate').value);
+      const totalGST = parseFloat(document.getElementById('totalGstAmount').value) || 0;
+
+      if (!isNaN(taxableValue) && !isNaN(tdsRate)) {
+        const tdsDeduction = taxableValue * tdsRate / 100;
+        document.getElementById('tdsDeduction').value = tdsDeduction.toFixed(2);
+
+        // Net payable is invoice total minus TDS deduction
+        const invoiceTotal = taxableValue + totalGST;
+        const netPayable = invoiceTotal - tdsDeduction;
+        document.getElementById('netPayable').value = netPayable.toFixed(2);
+      } else {
+        document.getElementById('tdsDeduction').value = '';
+        document.getElementById('netPayable').value = '';
+      }
+    }
+
+    // Function to submit/generate the form
+    function submitForm() {
+      // Validate required fields
+      const requiredFields = [
+        'invoiceNumber', 'invoiceDate', 'taxableValue', 'gstRate',
+        'supplierName', 'supplierGstin', 'receiverName', 'receiverGstin'
+      ];
+      
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        const element = document.getElementById(field);
+        if (!element.value.trim()) {
+          element.style.borderColor = 'red';
+          isValid = false;
+        } else {
+          element.style.borderColor = '#ccc';
+        }
+      });
+      
+      if (isValid) {
+        alert('Invoice Generated Successfully!');
+        // Here you would typically submit the form to the server
+        // or generate a printable invoice
+      } else {
+        alert('Please fill out all required fields.');
+      }
+    }
+
+  
+  </script>
+</body>
+</html>
